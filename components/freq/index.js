@@ -41,7 +41,8 @@ class FrequencyVisualiser extends HTMLElement {
                 this.bufferLength = this.analyser.frequencyBinCount;
                 this.dataArray = new Uint8Array(this.bufferLength);
 
-                this.sourceNode.connect(this.analyser);
+                this.onNodesConnected(this.sourceNode, this.analyser, this.audioContext);
+
                 this.analyser.connect(this.audioContext.destination);
 
                 clearInterval(interval);

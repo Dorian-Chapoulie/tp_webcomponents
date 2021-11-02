@@ -1,24 +1,120 @@
 import '../libs/webaudio-controls.js';
-const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+const getBaseUrl = () => {
+    return window.location.origin + '/components';
+}
 
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
     <style>
     </style>
     <webaudio-slider
-        midilearn="1"
-        midicc="1.24" 
-        src="../img/vsliderbody.png"
-        knobsrc="../img/vsliderknob.png"
-        value="0" min="0" max="100" step="1"
-        basewidth="24"
-        baseheight="128"
-        knobwidth="24"
-        knobheight="24"
-        ditchlength="100"
-        units="%"
-        tooltip="Slider-R"
+        style="margin-right: 20px;"
+        id="freq_60"
+        src="${getBaseUrl()}/assets/img/vsliderbody.png"
+        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+        value=1
+        min=-30
+        max=30
+        step=0.1
+        basewidth=24
+        baseheight=128
+        knobwidth=24
+        knobheight=24
+        ditchlength=100
+        tooltip="freq 60hz"
     >
+    <p id="label_0"></p>
+    </webaudio-slider>
+    <webaudio-slider
+        style="margin-right: 20px;"
+        id="freq_170"
+        src="${getBaseUrl()}/assets/img/vsliderbody.png"
+        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+        value=1
+        min=-30
+        max=30
+        step=0.1
+        basewidth=24
+        baseheight=128
+        knobwidth=24
+        knobheight=24
+        ditchlength=100
+        tooltip="Freq 170hz"
+    >
+    <p id="label_1"></p>
+    </webaudio-slider>
+    <webaudio-slider
+        style="margin-right: 20px;"
+        id="freq_350"
+        src="${getBaseUrl()}/assets/img/vsliderbody.png"
+        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+        value=1
+        min=-30
+        max=30
+        step=0.1
+        basewidth=24
+        baseheight=128
+        knobwidth=24
+        knobheight=24
+        ditchlength=100
+        tooltip="Freq 350hz"
+    >
+    <p id="label_2"></p>
+    </webaudio-slider>
+    <webaudio-slider
+        style="margin-right: 20px;"
+        id="freq_1000"
+        src="${getBaseUrl()}/assets/img/vsliderbody.png"
+        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+        value=1
+        min=-30
+        max=30
+        step=0.1
+        basewidth=24
+        baseheight=128
+        knobwidth=24
+        knobheight=24
+        ditchlength=100
+        tooltip="Freq 1000hz"
+    >
+    <p id="label_3"></p>
+    </webaudio-slider>
+    <webaudio-slider
+        style="margin-right: 20px;"
+        id="freq_3500"
+        src="${getBaseUrl()}/assets/img/vsliderbody.png"
+        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+        value=1
+        min=-30
+        max=30
+        step=0.1
+        basewidth=24
+        baseheight=128
+        knobwidth=24
+        knobheight=24
+        ditchlength=100
+        tooltip="Freq 3500hz"
+    >
+    <p id="label_4"></p>
+    </webaudio-slider>
+    <webaudio-slider
+        style="margin-right: 20px;"
+        id="freq_10000"
+        src="${getBaseUrl()}/assets/img/vsliderbody.png"
+        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+        value=1
+        min=-30
+        max=30
+        step=0.1
+        basewidth=24
+        baseheight=128
+        knobwidth=24
+        knobheight=24
+        ditchlength=100
+        tooltip="Freq 10 000hz"
+    >
+    <p id="label_5"></p>
     </webaudio-slider>
 `;
 
@@ -27,83 +123,89 @@ class Equalizer extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
         this.createIds();
+        this.filters = [];
     }
-
-    getBaseUrl() {
-        return window.location.origin + '/components';
-    }
-
 
     connectedCallback() {
         this.shadowRoot.appendChild(template.content.cloneNode(true));
         this.getElements();
         this.init();
-        requestAnimationFrame(() => this.visualize());
+        this.setListeners();
     }
 
     init() {
-        this.audioContext = new AudioContext();
-
         const interval = setInterval(() => {
-            if (this.player) {
+            if (this.player && this.audioContext && this.parentSourceNode && this.parentAnalyser) {
                 this.player.onplay = (e) => { this.audioContext.resume(); }
 
-                this.sourceNode = this.audioContext.createMediaElementSource(this.player);
-                this.analyser = this.audioContext.createAnalyser();
+                [60, 170, 350, 1000, 3500, 10000].forEach((freq, i) => {
+                    const eq = this.audioContext.createBiquadFilter();
+                    eq.frequency.value = freq;
+                    eq.type = "peaking";
+                    eq.gain.value = 0;
+                    this.filters.push(eq);
+                  });
+                
+                this.parentSourceNode.connect(this.filters[0]);
+                for(var i = 0; i < this.filters.length - 1; i++) {
+                   this.filters[i].connect(this.filters[i+1]);
+                };
 
-                this.analyser.fftSize = 256;
-                this.bufferLength = this.analyser.frequencyBinCount;
-                this.dataArray = new Uint8Array(this.bufferLength);
-
-                this.sourceNode.connect(this.analyser);
-                this.analyser.connect(this.audioContext.destination);
+                this.filters[this.filters.length - 1].connect(this.parentAnalyser);
 
                 clearInterval(interval);
             }
         }, 500);
+    }
 
-        this.width = this.canvas.width;
-        this.height = this.canvas.height;
-        this.canvasContext = this.canvas.getContext('2d');
+    changeGain(nbFilter, sliderVal) {
+        this.filters[nbFilter].gain.value = parseFloat(sliderVal);
+        
+        const output = this.shadowRoot.getElementById("label_" + nbFilter);
+        output.innerHTML = parseFloat(sliderVal).toFixed(2) + " dB";
     }
 
     createIds() {
         this.ids = {
-        CANVAS: 'canvas',
+            FREQ_60: 'freq_60',
+            FREQ_170: 'freq_170',
+            FREQ_350: 'freq_350',
+            FREQ_1000: 'freq_1000',
+            FREQ_3500: 'freq_3500',
+            FREQ_10000: 'freq_10000',
         };
     }
 
     getElements() {
-        this.canvas = this.shadowRoot.getElementById(this.ids.CANVAS);
+        this.freq_60 = this.shadowRoot.getElementById(this.ids.FREQ_60);
+        this.freq_170 = this.shadowRoot.getElementById(this.ids.FREQ_170);
+        this.freq_350 = this.shadowRoot.getElementById(this.ids.FREQ_350);
+        this.freq_1000 = this.shadowRoot.getElementById(this.ids.FREQ_1000);
+        this.freq_3500 = this.shadowRoot.getElementById(this.ids.FREQ_3500);
+        this.freq_10000 = this.shadowRoot.getElementById(this.ids.FREQ_10000);
     }
 
-    visualize() {
-        if (!this.analyser) {
-            setTimeout(() => {
-                requestAnimationFrame(() => this.visualize());
-            }, 100);
-            return;
-        }
-        
-        this.canvasContext.clearRect(0, 0, this.width, this.height);
-        this.analyser.getByteFrequencyData(this.dataArray);
-    
-        const barWidth = this.width / this.bufferLength;
-        var barHeight;
-        var x = 0;
-        const heightScale = this.height / 128;
-    
-        for(var i = 0; i < this.bufferLength; i++) {
-            barHeight = this.dataArray[i];
-            this.canvasContext.fillStyle = 'rgb(' + (barHeight + 100) + ', 50, 50)';
-            barHeight *= heightScale;
-            this.canvasContext.fillRect(x, this.height - barHeight / 2, barWidth, barHeight / 2);
-            x += barWidth + 1;
-        }
-        requestAnimationFrame(() => this.visualize());
-  }
-  
+    setListeners() {
+        this.freq_60.addEventListener('input', ({ target: { value }}) => {
+            this.changeGain(0, value);
+        });
+        this.freq_170.addEventListener('input', ({ target: { value }}) => {
+            this.changeGain(1, value);
+        });
+        this.freq_350.addEventListener('input', ({ target: { value }}) => {
+            this.changeGain(2, value);
+        });
+        this.freq_1000.addEventListener('input', ({ target: { value }}) => {
+            this.changeGain(3, value);
+        });
+        this.freq_3500.addEventListener('input', ({ target: { value }}) => {
+            this.changeGain(4, value);
+        });
+        this.freq_10000.addEventListener('input', ({ target: { value }}) => {
+            this.changeGain(5, value);
+        });
+    }
 
 }
 
-customElements.define("equalizer", Equalizer);
+customElements.define("my-equalizer", Equalizer);

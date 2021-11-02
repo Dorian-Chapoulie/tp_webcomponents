@@ -1,5 +1,12 @@
 import '../libs/webaudio-controls.js';
 import '../freq/index.js';
+import '../equalizer/index.js';
+import '../balance/index.js';
+
+const getBaseUrl = () => {
+  return window.location.origin + '/components';
+}
+
 
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
@@ -21,18 +28,19 @@ template.innerHTML = /*html*/`
   <br>
   <webaudio-knob
     id="volume"
-    src="/assets/img/Vintage_VUMeter_2.png"
+    src="${getBaseUrl()}/assets/img/Vintage_VUMeter_2.png"
     value=0
     min=0
     max=1
     step=0.1
-    diameter=128
+    diameter=150
     tooltip="Volume %d"
   ></webaudio-knob>
   <br>
-  <freq-visualiser id="freq-visualiser" />
+  <freq-visualiser id="freq-visualiser"></freq-visualiser>
+  <my-equalizer id="equalizer" ></my-equalizer>
+  <my-balance id="balance" ></my-balance>
 `;
-
 //todo barre de prograssion
 //visu des freq, wave forms, volume
 
@@ -43,23 +51,10 @@ class MyAudioPlayer extends HTMLElement {
     this.createIds();
   }
 
-  getBaseUrl() {
-    return window.location.origin + '/components';
-  }
-
-  fixUrls() {
-    const elements = this.shadowRoot.querySelectorAll('webaudio-knob', 'webaudio-slider', 'webaudio-switch', 'img');
-    elements.forEach((e) => {
-      const path = e.src;
-      e.src = this.getBaseUrl() + path;
-    });
-  }
-
   connectedCallback() {
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     this.getElements();
     this.createListeners();
-    this.fixUrls();    
     this.initDependencies();
     this.startAnimations();
 
@@ -69,6 +64,13 @@ class MyAudioPlayer extends HTMLElement {
 
   initDependencies() {
     this.freq_visualiser.player = this.player;
+    this.freq_visualiser.onNodesConnected = (sourceNode, analyser, audioContext) => {
+      this.equalizer.parentSourceNode = sourceNode;
+      this.equalizer.parentAnalyser = analyser;
+      this.equalizer.audioContext = audioContext;
+    }
+
+    this.equalizer.player = this.player;
   }
 
   createIds() {
@@ -85,6 +87,8 @@ class MyAudioPlayer extends HTMLElement {
       STOP: 'stop',
       VOLUME: 'volume',
       FREQ_VISUALISER: 'freq-visualiser',
+      EQUALIZER: 'equalizer',
+      BALANCE: 'balance',
     };
   }
 
@@ -104,7 +108,10 @@ class MyAudioPlayer extends HTMLElement {
     this.next = this.shadowRoot.getElementById(this.ids.NEXT);
     this.stop = this.shadowRoot.getElementById(this.ids.STOP);
     this.volume = this.shadowRoot.getElementById(this.ids.VOLUME);
+    //Components
     this.freq_visualiser = this.shadowRoot.getElementById(this.ids.FREQ_VISUALISER);
+    this.equalizer = this.shadowRoot.getElementById(this.ids.EQUALIZER);
+    this.balance = this.shadowRoot.getElementById(this.ids.BALANCE);
   }
 
   startAnimations() {
