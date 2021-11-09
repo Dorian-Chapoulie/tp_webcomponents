@@ -1,5 +1,4 @@
 import '../libs/webaudio-controls.js';
-const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
@@ -9,7 +8,7 @@ template.innerHTML = /*html*/`
 `;
 
 class FrequencyVisualiser extends HTMLElement {
-    constructor() {
+    constructor(params) {
         super();
         this.attachShadow({ mode: "open" });
         this.createIds();
@@ -28,26 +27,18 @@ class FrequencyVisualiser extends HTMLElement {
     }
 
     init() {
-        this.audioContext = new AudioContext();
-
         const interval = setInterval(() => {
-            if (this.player) {
-                this.player.onplay = (e) => { this.audioContext.resume(); }
-
-                this.sourceNode = this.audioContext.createMediaElementSource(this.player);
+            if (this.audioContext) {
                 this.analyser = this.audioContext.createAnalyser();
 
                 this.analyser.fftSize = 256;
                 this.bufferLength = this.analyser.frequencyBinCount;
                 this.dataArray = new Uint8Array(this.bufferLength);
 
-                this.onNodesConnected(this.sourceNode, this.analyser, this.audioContext);
-
-                this.analyser.connect(this.audioContext.destination);
-
+                this.addAudioNode(this.analyser);
                 clearInterval(interval);
             }
-        }, 500);
+        }, 100);
 
         this.width = this.canvas.width;
         this.height = this.canvas.height;

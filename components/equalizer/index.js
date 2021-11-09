@@ -24,7 +24,7 @@ template.innerHTML = /*html*/`
         ditchlength=100
         tooltip="freq 60hz"
     >
-    <p id="label_0"></p>
+    <p id="label_0">0dB</p>
     </webaudio-slider>
     <webaudio-slider
         style="margin-right: 20px;"
@@ -42,7 +42,7 @@ template.innerHTML = /*html*/`
         ditchlength=100
         tooltip="Freq 170hz"
     >
-    <p id="label_1"></p>
+    <p id="label_1">0dB</p>
     </webaudio-slider>
     <webaudio-slider
         style="margin-right: 20px;"
@@ -60,7 +60,7 @@ template.innerHTML = /*html*/`
         ditchlength=100
         tooltip="Freq 350hz"
     >
-    <p id="label_2"></p>
+    <p id="label_2">0dB</p>
     </webaudio-slider>
     <webaudio-slider
         style="margin-right: 20px;"
@@ -78,7 +78,7 @@ template.innerHTML = /*html*/`
         ditchlength=100
         tooltip="Freq 1000hz"
     >
-    <p id="label_3"></p>
+    <p id="label_3">0dB</p>
     </webaudio-slider>
     <webaudio-slider
         style="margin-right: 20px;"
@@ -96,7 +96,7 @@ template.innerHTML = /*html*/`
         ditchlength=100
         tooltip="Freq 3500hz"
     >
-    <p id="label_4"></p>
+    <p id="label_4">0dB</p>
     </webaudio-slider>
     <webaudio-slider
         style="margin-right: 20px;"
@@ -114,7 +114,7 @@ template.innerHTML = /*html*/`
         ditchlength=100
         tooltip="Freq 10 000hz"
     >
-    <p id="label_5"></p>
+    <p id="label_5">0dB</p>
     </webaudio-slider>
 `;
 
@@ -135,8 +135,7 @@ class Equalizer extends HTMLElement {
 
     init() {
         const interval = setInterval(() => {
-            if (this.player && this.audioContext && this.parentSourceNode && this.parentAnalyser) {
-                this.player.onplay = (e) => { this.audioContext.resume(); }
+            if (this.audioContext) {
 
                 [60, 170, 350, 1000, 3500, 10000].forEach((freq, i) => {
                     const eq = this.audioContext.createBiquadFilter();
@@ -144,14 +143,11 @@ class Equalizer extends HTMLElement {
                     eq.type = "peaking";
                     eq.gain.value = 0;
                     this.filters.push(eq);
-                  });
-                
-                this.parentSourceNode.connect(this.filters[0]);
-                for(var i = 0; i < this.filters.length - 1; i++) {
-                   this.filters[i].connect(this.filters[i+1]);
-                };
+                });
 
-                this.filters[this.filters.length - 1].connect(this.parentAnalyser);
+                this.filters.forEach((filter) => {
+                    this.addAudioNode(filter);
+                });
 
                 clearInterval(interval);
             }

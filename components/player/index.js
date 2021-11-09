@@ -2,6 +2,8 @@ import '../libs/webaudio-controls.js';
 import '../freq/index.js';
 import '../equalizer/index.js';
 import '../balance/index.js';
+import '../vu_metter/index.js';
+const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const getBaseUrl = () => {
   return window.location.origin + '/components';
@@ -37,9 +39,10 @@ template.innerHTML = /*html*/`
     tooltip="Volume %d"
   ></webaudio-knob>
   <br>
-  <freq-visualiser id="freq-visualiser"></freq-visualiser>
   <my-equalizer id="equalizer" ></my-equalizer>
   <my-balance id="balance" ></my-balance>
+  <vu-metter id="vu-metter"></vu-metter>
+  <freq-visualiser id="freq-visualiser"></freq-visualiser>
 `;
 //todo barre de prograssion
 //visu des freq, wave forms, volume
@@ -54,6 +57,7 @@ class MyAudioPlayer extends HTMLElement {
   connectedCallback() {
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     this.getElements();
+    this.initAudio();
     this.createListeners();
     this.initDependencies();
     this.startAnimations();
@@ -62,15 +66,43 @@ class MyAudioPlayer extends HTMLElement {
     this.player.src = "https://mainline.i3s.unice.fr/mooc/LaSueur.mp3";
   }
 
-  initDependencies() {
-    this.freq_visualiser.player = this.player;
-    this.freq_visualiser.onNodesConnected = (sourceNode, analyser, audioContext) => {
-      this.equalizer.parentSourceNode = sourceNode;
-      this.equalizer.parentAnalyser = analyser;
-      this.equalizer.audioContext = audioContext;
-    }
+  initAudio() {
+    this.audioContext = new AudioContext();
+    this.sourceNode = this.audioContext.createMediaElementSource(this.player);
+    this.sourceNode.connect(this.audioContext.destination);
+    this.audioNodes = [this.sourceNode];
+  }
 
-    this.equalizer.player = this.player;
+  connectAudioNodeToLastNode(audioNode, str) {
+    audioNode.name = str;
+    //console.log(`Connected ${previousNode.name || 'input'} to ${audioNode.name}`);
+  }
+
+  addAudioNode(audioNode, str) {
+    audioNode.name = str;
+    const length = this.audioNodes.length;
+    const previousNode = this.audioNodes[length - 1];
+    previousNode.disconnect();
+    previousNode.connect(audioNode);
+    audioNode.connect(this.audioContext.destination);
+    this.audioNodes.push(audioNode);
+    console.log(`Linked ${previousNode.name || 'input'} to ${audioNode.name}`);
+  }
+
+  initDependencies() {
+    //equalizer
+    this.equalizer.audioContext = this.audioContext;
+    this.equalizer.addAudioNode = (audioNode) => this.addAudioNode(audioNode, "equalizer");
+    //balance
+    this.balance.audioContext = this.audioContext;
+    this.balance.addAudioNode = (audioNode) => this.addAudioNode(audioNode, "balance");
+    //We must process the audio before drawing the visualisers
+    //cavans freq vvisualier
+    this.freq_visualiser.audioContext = this.audioContext;
+    this.freq_visualiser.addAudioNode = (audioNode) => this.connectAudioNodeToLastNode(audioNode, "freq visualier");
+    //vu metter
+    this.vu_metter.audioContext = this.audioContext;
+    this.vu_metter.addAudioNode = (audioNode) => this.connectAudioNodeToLastNode(audioNode, "vu metter");
   }
 
   createIds() {
@@ -89,6 +121,7 @@ class MyAudioPlayer extends HTMLElement {
       FREQ_VISUALISER: 'freq-visualiser',
       EQUALIZER: 'equalizer',
       BALANCE: 'balance',
+      VU_METTER: 'vu-metter',
     };
   }
 
@@ -112,11 +145,11 @@ class MyAudioPlayer extends HTMLElement {
     this.freq_visualiser = this.shadowRoot.getElementById(this.ids.FREQ_VISUALISER);
     this.equalizer = this.shadowRoot.getElementById(this.ids.EQUALIZER);
     this.balance = this.shadowRoot.getElementById(this.ids.BALANCE);
+    this.vu_metter = this.shadowRoot.getElementById(this.ids.VU_METTER);
   }
 
   startAnimations() {
     setTimeout(async () => {
-      const min = this.volume.min;
       const max = this.volume.max;
       const step = this.volume.step;
 
@@ -164,6 +197,7 @@ class MyAudioPlayer extends HTMLElement {
       this.volume.addEventListener('input', ({ target: { value }}) => {
         this.player.volume = parseFloat(value, 10);
       });
+      this.player.onplay = (e) => { this.audioContext.resume(); };
   }
 
 }

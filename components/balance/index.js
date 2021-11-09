@@ -9,25 +9,17 @@ template.innerHTML = /*html*/`
     <style>
     </style>
     <webaudio-knob
-        id="balance_L"
+        id="balance"
         src="${getBaseUrl()}/assets/img/LittlePhatty.png"
-        value=0
+        value=0.5
         min=0
         max=1
         step=0.1
         diameter=64
-        tooltip="Balance left %d"
-    ></webaudio-knob>
-    <webaudio-knob
-        id="balance_R"
-        src="${getBaseUrl()}/assets/img/LittlePhatty.png"
-        value=0
-        min=0
-        max=1
-        step=0.1
-        diameter=64
-        tooltip="Balance right %d"
-    ></webaudio-knob>
+        tooltip="Balance"
+    >
+    <p>Left - Right</p>
+    </webaudio-knob>
 `;
 
 class Balance extends HTMLElement {
@@ -47,12 +39,9 @@ class Balance extends HTMLElement {
 
     init() {
         const interval = setInterval(() => {
-            if (this.player && this.audioContext && this.parentSourceNode && this.parentAnalyser) {
-                this.player.onplay = (e) => { this.audioContext.resume(); }
-
-
-
-
+            if (this.audioContext) {
+                this.pannerNode = this.audioContext.createStereoPanner();
+                this.addAudioNode(this.pannerNode);
                 clearInterval(interval);
             }
         }, 500);
@@ -61,18 +50,20 @@ class Balance extends HTMLElement {
 
     createIds() {
         this.ids = {
-            BALANCE_L: 'balance_L',
-            BALANCE_R: 'balance_R',
+            BALANCE: 'balance',
         };
     }
 
     getElements() {
-        this.balance_L = this.shadowRoot.getElementById(this.ids.BALANCE_L);
-        this.balance_R = this.shadowRoot.getElementById(this.ids.BALANCE_R);
+        this.balance = this.shadowRoot.getElementById(this.ids.BALANCE);
     }
 
     setListeners() {
-       
+        this.balance.addEventListener('input', ({ target: { value }}) => {
+            if (this.pannerNode) {
+                this.pannerNode.pan.value = parseFloat(value, 10);
+            }
+        });
     }
 
 }
