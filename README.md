@@ -4,10 +4,10 @@ Rendu du TP sur les webcomponents.
 
 Il y a 5 composants distincts :
 
-<my-equalizer></my-equalizer>
-<my-balance></my-balance>
-<vu-metter></vu-metter>
-<freq-visualiser></freq-visualiser>
+<my-equalizer>
+<my-balance>
+<vu-metter>
+<freq-visualiser>
 
 Ces composants sont utilisé dans le custom web component: 
   <my-player>
