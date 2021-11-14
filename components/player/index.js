@@ -13,37 +13,49 @@ const getBaseUrl = () => {
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
   <style>
+    label {
+      color: #560A86 !important;
+    }
+    #currentSound {
+      color: #560A86;
+      font-family: "monospace";
+      font-weight: bolder;
+    }
   </style>
-  <audio id="myplayer" controls crossorigin="anonymous"></audio>
-  <br>
-  
-  <button id="previous">Previous</button>
-  <button id="backward">-10s</button>
-  <button id="play">Play</button>
-  <button id="pause">Pause</button>
-  <button id="stop">Stop</button>
-  <button id="forward">+10s</button>
-  <button id="next">Next</button>
-  <br>
-  <label>Vitesse de lecture</label>
-  <input id="speed" type="range" value=1 min=0.2 max=4 step=0.1>
-  <label id="speed_value">1</label>
-  <br>
-  <webaudio-knob
-    id="volume"
-    src="${getBaseUrl()}/assets/img/Vintage_VUMeter_2.png"
-    value=0
-    min=0
-    max=1
-    step=0.1
-    diameter=150
-    tooltip="Volume %d"
-  ></webaudio-knob>
-  <br>
-  <my-equalizer id="equalizer"></my-equalizer>
-  <my-balance id="balance" ></my-balance>
-  <vu-metter id="vu-metter"></vu-metter>
-  <freq-visualiser id="freq-visualiser"></freq-visualiser>
+  <div style="z-index: 9999;">
+    <audio id="myplayer" controls crossorigin="anonymous" style="visibility: hidden;"></audio>
+    <br>
+    
+    <button id="previous" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 440px;">Pre</button>
+    <button id="backward" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 490px;">-10s</button>
+    <button id="stop" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 540px;">Sto</button>
+    <button id="play" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 590px;">Play</button>
+    <button id="pause" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 640px;">Pau</button>
+    <button id="forward" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 690px;">+10s</button>
+    <button id="next" style="opacity: 0; cursor: grab; position: absolute; top: 348px; left: 740px;">Nex</button>
+    <br>
+    <label style="z-index: 9999; cursor: grab; position: absolute; top: 310px; left: 440px;">Vitesse de lecture</label>
+    <input style="z-index: 9999; cursor: grab; position: absolute; top: 310px; left: 590px;" id="speed" type="range" value=1 min=0.2 max=4 step=0.1>
+    <label style="z-index: 9999; cursor: grab; position: absolute; top: 310px; left: 730px;" id="speed_value">1</label>
+    <br>
+    <webaudio-knob
+      id="volume"
+      src="${getBaseUrl()}/assets/img/Vintage_VUMeter_2.png"
+      value=0
+      min=0
+      max=1
+      step=0.1
+      diameter=150
+      tooltip="Volume %d"
+      style="position: absolute; top: 108px; left: 65px;">
+    </webaudio-knob>
+    <br>
+    <p id="currentSound" style="z-index: 9999; cursor: grab; position: absolute; top: 108px; left: 755px;"></p>
+    <my-equalizer id="equalizer"></my-equalizer>
+    <my-balance id="balance" ></my-balance>
+    <vu-metter id="vu-metter"></vu-metter>
+    <freq-visualiser id="freq-visualiser"></freq-visualiser>
+  </di>
 `;
 //todo barre de prograssion
 //visu des freq, wave forms, volume
@@ -52,6 +64,33 @@ class MyAudioPlayer extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this.playList = [
+      {
+        url: "/sounds/0.mp3",
+        author: "Kavinsky",
+        title: "Nightcall",
+        index: 0,
+      },
+      {
+        url: "/sounds/1.mp3",
+        author: "DaftPunk",
+        title: "One More Time",
+        index: 1,
+      },
+      {
+        url: "/sounds/2.mp3",
+        author: "CyberPunk",
+        title: "Never fade away",
+        index: 2,
+      },
+      {
+        url: "/sounds/3.mp3",
+        author: "System of a down",
+        title: "Toxicity",
+        index: 3,
+      }
+    ];
+    this.currentSoundObject = this.playList[0];
     this.createIds();
   }
 
@@ -63,8 +102,7 @@ class MyAudioPlayer extends HTMLElement {
     this.initDependencies();
     this.startAnimations();
 
-    //todo: createPlaylist
-    this.player.src = "${getBaseUrl()}/../sounds/soad.mp3";
+    this.player.src = this.playList[0].url;
   }
 
   initAudio() {
@@ -111,6 +149,18 @@ class MyAudioPlayer extends HTMLElement {
       this.freq_visualiser.addAudioNode = (audioNode) => this.connectAudioNode(audioNode, "freq visualier");
     }, 1000);
     
+    this.updateCurrentSoundText();
+  }
+
+  updateCurrentSoundText () {
+    this.currentSound.innerHTML = `Author: ${this.currentSoundObject.author}<br/>Title: ${this.currentSoundObject.title}`;
+  }
+
+  updateCurrentPlayerSong(song) {
+    this.currentSoundObject = song;
+    this.player.src = this.currentSoundObject.url;
+    this.updateCurrentSoundText();
+    this.player.play();
   }
 
   createIds() {
@@ -131,6 +181,7 @@ class MyAudioPlayer extends HTMLElement {
       EQUALIZER: 'equalizer',
       BALANCE: 'balance',
       VU_METTER: 'vu-metter',
+      CURRENT_SOUND: 'currentSound',
     };
   }
 
@@ -151,6 +202,7 @@ class MyAudioPlayer extends HTMLElement {
     this.next = this.shadowRoot.getElementById(this.ids.NEXT);
     this.stop = this.shadowRoot.getElementById(this.ids.STOP);
     this.volume = this.shadowRoot.getElementById(this.ids.VOLUME);
+    this.currentSound = this.shadowRoot.getElementById(this.ids.CURRENT_SOUND);
     //Components
     this.freq_visualiser = this.shadowRoot.getElementById(this.ids.FREQ_VISUALISER);
     this.equalizer = this.shadowRoot.getElementById(this.ids.EQUALIZER);
@@ -196,10 +248,24 @@ class MyAudioPlayer extends HTMLElement {
         this.player.currentTime -= 10;
       });
       this.previous.addEventListener('click', () => {
-        
+        const length = this.playList.length;
+        let song;
+        if (this.currentSoundObject.index === 0) {
+          song = this.playList[length - 1];
+        } else {
+          song = this.playList[this.currentSoundObject.index - 1];
+        }
+        this.updateCurrentPlayerSong(song);
       });
       this.next.addEventListener('click', () => {
-        
+        const length = this.playList.length;
+        let song;
+        if (this.currentSoundObject.index === length - 1) {
+          song = this.playList[0];
+        } else {
+          song = this.playList[this.currentSoundObject.index + 1];
+        }
+        this.updateCurrentPlayerSong(song);
       });
       this.stop.addEventListener('click', () => {
         this.player.currentTime = 0;

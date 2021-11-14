@@ -4,7 +4,7 @@ const template = document.createElement("template");
 template.innerHTML = /*html*/`
   <style>
   </style>
-  <canvas id="canvas" width=300 height=100></canvas>
+  <canvas id="canvas" width=190 height=110 style="position: absolute; top: 180px; left: 740px;"></canvas>
 `;
 
 class FrequencyVisualiser extends HTMLElement {
@@ -73,7 +73,7 @@ class FrequencyVisualiser extends HTMLElement {
     
         for(var i = 0; i < this.bufferLength; i++) {
             barHeight = this.dataArray[i];
-            this.canvasContext.fillStyle = 'rgb(' + (barHeight + 100) + ', 50, 50)';
+            this.canvasContext.fillStyle = 'rgb(176, 38, 255)';
             barHeight *= heightScale;
             this.canvasContext.fillRect(x, this.height - barHeight / 2, barWidth, barHeight / 2);
             x += barWidth + 1;

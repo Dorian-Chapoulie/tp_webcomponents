@@ -11,14 +11,15 @@ template.innerHTML = /*html*/`
     <webaudio-knob
         id="balance"
         src="${getBaseUrl()}/assets/img/LittlePhatty.png"
-        value=0.5
+        value=0
         min=-1
         max=1
         step=0.1
         diameter=64
         tooltip="Balance"
+        style="position: absolute; left: 850px; top: 310px; margin-bottom: 0px;"
     >
-    <p>Left - Right</p>
+    <p style="margin-top: 0; display: flex;">Left - Right</p>
     </webaudio-knob>
 `;
 

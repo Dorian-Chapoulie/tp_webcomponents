@@ -19,6 +19,7 @@ template.innerHTML = /*html*/`
         height=150
         sprites=99
         tooltip="dB"
+        style="position: absolute; top: 108px; left: 230px;"
     >
     </webaudio-knob>
 `;

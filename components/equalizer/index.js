@@ -7,115 +7,123 @@ const getBaseUrl = () => {
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
     <style>
+        p {
+            color: #560A86 !important;
+        }
+        .webaudioctrl-label {
+            height: 0px !important;
+        }
     </style>
-    <webaudio-slider
-        style="margin-right: 20px;"
-        id="freq_60"
-        src="${getBaseUrl()}/assets/img/vsliderbody.png"
-        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
-        value=1
-        min=-30
-        max=30
-        step=0.1
-        basewidth=24
-        baseheight=128
-        knobwidth=24
-        knobheight=24
-        ditchlength=100
-        tooltip="freq 60hz"
-    >
-    <p id="label_0">0dB</p>
-    </webaudio-slider>
-    <webaudio-slider
-        style="margin-right: 20px;"
-        id="freq_170"
-        src="${getBaseUrl()}/assets/img/vsliderbody.png"
-        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
-        value=1
-        min=-30
-        max=30
-        step=0.1
-        basewidth=24
-        baseheight=128
-        knobwidth=24
-        knobheight=24
-        ditchlength=100
-        tooltip="Freq 170hz"
-    >
-    <p id="label_1">0dB</p>
-    </webaudio-slider>
-    <webaudio-slider
-        style="margin-right: 20px;"
-        id="freq_350"
-        src="${getBaseUrl()}/assets/img/vsliderbody.png"
-        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
-        value=1
-        min=-30
-        max=30
-        step=0.1
-        basewidth=24
-        baseheight=128
-        knobwidth=24
-        knobheight=24
-        ditchlength=100
-        tooltip="Freq 350hz"
-    >
-    <p id="label_2">0dB</p>
-    </webaudio-slider>
-    <webaudio-slider
-        style="margin-right: 20px;"
-        id="freq_1000"
-        src="${getBaseUrl()}/assets/img/vsliderbody.png"
-        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
-        value=1
-        min=-30
-        max=30
-        step=0.1
-        basewidth=24
-        baseheight=128
-        knobwidth=24
-        knobheight=24
-        ditchlength=100
-        tooltip="Freq 1000hz"
-    >
-    <p id="label_3">0dB</p>
-    </webaudio-slider>
-    <webaudio-slider
-        style="margin-right: 20px;"
-        id="freq_3500"
-        src="${getBaseUrl()}/assets/img/vsliderbody.png"
-        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
-        value=1
-        min=-30
-        max=30
-        step=0.1
-        basewidth=24
-        baseheight=128
-        knobwidth=24
-        knobheight=24
-        ditchlength=100
-        tooltip="Freq 3500hz"
-    >
-    <p id="label_4">0dB</p>
-    </webaudio-slider>
-    <webaudio-slider
-        style="margin-right: 20px;"
-        id="freq_10000"
-        src="${getBaseUrl()}/assets/img/vsliderbody.png"
-        knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
-        value=1
-        min=-30
-        max=30
-        step=0.1
-        basewidth=24
-        baseheight=128
-        knobwidth=24
-        knobheight=24
-        ditchlength=100
-        tooltip="Freq 10 000hz"
-    >
-    <p id="label_5">0dB</p>
-    </webaudio-slider>
+    <div style="position: absolute; top: 120px; left: 450px">
+        <webaudio-slider
+            style="margin-right: 20px;"
+            id="freq_60"
+            src="${getBaseUrl()}/assets/img/vsliderbody.png"
+            knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+            value=1
+            min=-30
+            max=30
+            step=0.1
+            basewidth=24
+            baseheight=128
+            knobwidth=24
+            knobheight=24
+            ditchlength=100
+            tooltip="freq 60hz"
+        >
+        <p id="label_0">0dB</p>
+        </webaudio-slider>
+        <webaudio-slider
+            style="margin-right: 20px;"
+            id="freq_170"
+            src="${getBaseUrl()}/assets/img/vsliderbody.png"
+            knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+            value=1
+            min=-30
+            max=30
+            step=0.1
+            basewidth=24
+            baseheight=128
+            knobwidth=24
+            knobheight=24
+            ditchlength=100
+            tooltip="Freq 170hz"
+        >
+        <p id="label_1">0dB</p>
+        </webaudio-slider>
+        <webaudio-slider
+            style="margin-right: 20px;"
+            id="freq_350"
+            src="${getBaseUrl()}/assets/img/vsliderbody.png"
+            knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+            value=1
+            min=-30
+            max=30
+            step=0.1
+            basewidth=24
+            baseheight=128
+            knobwidth=24
+            knobheight=24
+            ditchlength=100
+            tooltip="Freq 350hz"
+        >
+        <p id="label_2">0dB</p>
+        </webaudio-slider>
+        <webaudio-slider
+            style="margin-right: 20px;"
+            id="freq_1000"
+            src="${getBaseUrl()}/assets/img/vsliderbody.png"
+            knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+            value=1
+            min=-30
+            max=30
+            step=0.1
+            basewidth=24
+            baseheight=128
+            knobwidth=24
+            knobheight=24
+            ditchlength=100
+            tooltip="Freq 1000hz"
+        >
+        <p id="label_3">0dB</p>
+        </webaudio-slider>
+        <webaudio-slider
+            style="margin-right: 20px;"
+            id="freq_3500"
+            src="${getBaseUrl()}/assets/img/vsliderbody.png"
+            knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+            value=1
+            min=-30
+            max=30
+            step=0.1
+            basewidth=24
+            baseheight=128
+            knobwidth=24
+            knobheight=24
+            ditchlength=100
+            tooltip="Freq 3500hz"
+        >
+        <p id="label_4">0dB</p>
+        </webaudio-slider>
+        <webaudio-slider
+            style="margin-right: 20px;"
+            id="freq_10000"
+            src="${getBaseUrl()}/assets/img/vsliderbody.png"
+            knobsrc="${getBaseUrl()}/assets/img/vsliderknob.png"
+            value=1
+            min=-30
+            max=30
+            step=0.1
+            basewidth=24
+            baseheight=128
+            knobwidth=24
+            knobheight=24
+            ditchlength=100
+            tooltip="Freq 10 000hz"
+        >
+        <p id="label_5">0dB</p>
+        </webaudio-slider>
+    </div>
 `;
 
 class Equalizer extends HTMLElement {
