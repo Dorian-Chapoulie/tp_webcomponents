@@ -6,7 +6,7 @@ import '../vu_metter/index.js';
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const getBaseUrl = () => {
-  return "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/components";
+  return "https://dorian-chapoulie.github.io/tp_webcomponents/components";
 }
 
 

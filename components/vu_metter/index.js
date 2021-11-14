@@ -1,7 +1,7 @@
 import '../libs/webaudio-controls.js';
 
 const getBaseUrl = () => {
-    return "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/components";
+    return "https://dorian-chapoulie.github.io/tp_webcomponents/components";
 }
 
 const template = document.createElement("template");
