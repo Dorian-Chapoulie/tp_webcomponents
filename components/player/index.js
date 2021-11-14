@@ -6,7 +6,7 @@ import '../vu_metter/index.js';
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const getBaseUrl = () => {
-  return window.location.origin + '/components';
+  return "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/components";
 }
 
 
@@ -66,25 +66,25 @@ class MyAudioPlayer extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.playList = [
       {
-        url: "/sounds/0.mp3",
+        url: "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/sounds/0.mp3",
         author: "Kavinsky",
         title: "Nightcall",
         index: 0,
       },
       {
-        url: "/sounds/1.mp3",
+        url: "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/sounds/1.mp3",
         author: "DaftPunk",
         title: "One More Time",
         index: 1,
       },
       {
-        url: "/sounds/2.mp3",
+        url: "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/sounds/2.mp3",
         author: "CyberPunk",
         title: "Never fade away",
         index: 2,
       },
       {
-        url: "/sounds/3.mp3",
+        url: "https://github.com/Dorian-Chapoulie/tp_webcomponents/tree/main/sounds/3.mp3",
         author: "System of a down",
         title: "Toxicity",
         index: 3,
