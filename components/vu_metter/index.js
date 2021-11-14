@@ -69,9 +69,6 @@ class VU_METTER extends HTMLElement {
             if (this.audioContext) {
             
                 this.processor = this.audioContext.createScriptProcessor(2048, 1, 1);
-
-                this.addAudioNode(this.processor);
-
                 this.processor.onaudioprocess = (e) => {
                     var input = e.inputBuffer.getChannelData(0);
                     let len = input.length   
@@ -82,7 +79,7 @@ class VU_METTER extends HTMLElement {
                     rms = Math.sqrt( total / len );
                     this.vu_metter.value = (rms <= 1 ? rms : 1);
                 };
-            
+                this.addAudioNode(this.processor);
                 clearInterval(interval);
             }
         }, 100);

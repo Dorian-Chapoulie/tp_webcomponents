@@ -26,7 +26,8 @@ template.innerHTML = /*html*/`
   <button id="next">Next</button>
   <br>
   <label>Vitesse de lecture</label>
-  <input id="speed" type="range" min=0.2 max=4 step=0.1>
+  <input id="speed" type="range" value=1 min=0.2 max=4 step=0.1>
+  <label id="speed_value">1</label>
   <br>
   <webaudio-knob
     id="volume"
@@ -39,7 +40,7 @@ template.innerHTML = /*html*/`
     tooltip="Volume %d"
   ></webaudio-knob>
   <br>
-  <my-equalizer id="equalizer" ></my-equalizer>
+  <my-equalizer id="equalizer"></my-equalizer>
   <my-balance id="balance" ></my-balance>
   <vu-metter id="vu-metter"></vu-metter>
   <freq-visualiser id="freq-visualiser"></freq-visualiser>
@@ -63,7 +64,7 @@ class MyAudioPlayer extends HTMLElement {
     this.startAnimations();
 
     //todo: createPlaylist
-    this.player.src = "https://mainline.i3s.unice.fr/mooc/LaSueur.mp3";
+    this.player.src = "${getBaseUrl()}/../sounds/soad.mp3";
   }
 
   initAudio() {
@@ -73,13 +74,16 @@ class MyAudioPlayer extends HTMLElement {
     this.audioNodes = [this.sourceNode];
   }
 
-  connectAudioNodeToLastNode(audioNode, str) {
-    audioNode.name = str;
-    //console.log(`Connected ${previousNode.name || 'input'} to ${audioNode.name}`);
+  async connectAudioNode(audioNode) {
+    audioNode.name = name;
+    const length = this.audioNodes.length;
+    const previousNode = this.audioNodes[length - 1];
+    previousNode.connect(audioNode);
+    audioNode.connect(this.audioContext.destination);
   }
 
-  addAudioNode(audioNode, str) {
-    audioNode.name = str;
+  addAudioNode(audioNode, name) {
+    audioNode.name = name;
     const length = this.audioNodes.length;
     const previousNode = this.audioNodes[length - 1];
     previousNode.disconnect();
@@ -96,13 +100,17 @@ class MyAudioPlayer extends HTMLElement {
     //balance
     this.balance.audioContext = this.audioContext;
     this.balance.addAudioNode = (audioNode) => this.addAudioNode(audioNode, "balance");
+
     //We must process the audio before drawing the visualisers
-    //cavans freq vvisualier
-    this.freq_visualiser.audioContext = this.audioContext;
-    this.freq_visualiser.addAudioNode = (audioNode) => this.connectAudioNodeToLastNode(audioNode, "freq visualier");
-    //vu metter
-    this.vu_metter.audioContext = this.audioContext;
-    this.vu_metter.addAudioNode = (audioNode) => this.connectAudioNodeToLastNode(audioNode, "vu metter");
+    setTimeout(() => {
+      //vu metter
+      this.vu_metter.audioContext = this.audioContext;
+      this.vu_metter.addAudioNode = (audioNode) => this.connectAudioNode(audioNode, "vu metter");
+      //cavans freq vvisualier
+      this.freq_visualiser.audioContext = this.audioContext;
+      this.freq_visualiser.addAudioNode = (audioNode) => this.connectAudioNode(audioNode, "freq visualier");
+    }, 1000);
+    
   }
 
   createIds() {
@@ -111,6 +119,7 @@ class MyAudioPlayer extends HTMLElement {
       PLAY: 'play',
       PAUSE: 'pause',
       SPEED: 'speed',
+      SPEED_LABEL: 'speed_value',
       FORWARD: 'forward',
       BACKWARD: 'backward',
       CANVAS: 'canvas',
@@ -134,6 +143,7 @@ class MyAudioPlayer extends HTMLElement {
     this.play = this.shadowRoot.getElementById(this.ids.PLAY);
     this.pause = this.shadowRoot.getElementById(this.ids.PAUSE);
     this.speed = this.shadowRoot.getElementById(this.ids.SPEED);
+    this.speedLabel = this.shadowRoot.getElementById(this.ids.SPEED_LABEL);
     this.forward = this.shadowRoot.getElementById(this.ids.FORWARD);
     this.backward = this.shadowRoot.getElementById(this.ids.BACKWARD);
     this.canvas = this.shadowRoot.getElementById(this.ids.CANVAS);
@@ -176,6 +186,7 @@ class MyAudioPlayer extends HTMLElement {
         this.player.pause();
       });
       this.speed.addEventListener('change', ({ target: { value }}) => {
+        this.speedLabel.innerHTML = parseFloat(value, 10);
         this.player.playbackRate = parseFloat(value, 10);
       });
       this.forward.addEventListener('click', () => {
