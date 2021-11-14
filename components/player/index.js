@@ -161,6 +161,7 @@ class MyAudioPlayer extends HTMLElement {
     this.player.src = this.currentSoundObject.url;
     this.updateCurrentSoundText();
     this.player.play();
+    this.player.playbackRate = this.speedValue;
   }
 
   createIds() {
@@ -239,6 +240,7 @@ class MyAudioPlayer extends HTMLElement {
       });
       this.speed.addEventListener('change', ({ target: { value }}) => {
         this.speedLabel.innerHTML = parseFloat(value, 10);
+        this.speedValue = parseFloat(value, 10);
         this.player.playbackRate = parseFloat(value, 10);
       });
       this.forward.addEventListener('click', () => {
